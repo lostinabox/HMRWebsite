@@ -1,0 +1,586 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* Über dem Canvas; Klicks nur auf Navigation */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 0.65rem;
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  background: transparent;
+  border: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.header .brand,
+.header .nav,
+.header button {
+  pointer-events: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-size: 1.08rem;
+}
+
+.brand-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.92;
+}
+
+.brand-name {
+  font-size: 1.12rem;
+}
+
+.nav {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.main {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: min(920px, 100%);
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  padding-left: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-left));
+  padding-right: max(clamp(1rem, 4vw, 2.5rem), env(safe-area-inset-right));
+}
+
+.hero {
+  margin: 0;
+  padding-left: 0;
+  border: none;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: auto;
+}
+
+.hero-text-source {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hero-title-source,
+.hero-lead-source {
+  pointer-events: none;
+}
+
+.hero-source-line {
+  display: inline;
+}
+
+.hero-char-source {
+  display: inline-block;
+}
+
+.hero-kicker {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-title {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  max-width: 25ch;
+  text-transform: none;
+}
+
+.hero-lead {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 1.2rem;
+}
+
+.hero-actions {
+  margin-top: 1.85rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-start;
+}
+
+/*
+ * Spielfläche unter Header/Hero (z-index niedriger als .main-Text),
+ * aber Teile haben innerhalb der Surface höchste Priorität.
+ * Footer-Statement: pointer-events none → Ziehen greift durch die Schrift.
+ */
+.kinetic-stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.kinetic-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
+.kinetic-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  touch-action: none;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.kinetic-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kinetic-wire {
+  stroke: var(--ink);
+  vector-effect: non-scaling-stroke;
+}
+
+.kinetic-wire--preview {
+  stroke-width: 1.25;
+  stroke-dasharray: 4 6;
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kinetic-wire--preview {
+    animation: wire-pulse 1.1s ease-in-out infinite;
+  }
+}
+
+@keyframes wire-pulse {
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.kinetic-wire--live {
+  stroke-width: 1.75;
+  opacity: 0.95;
+}
+
+.kinetic-part {
+  --part-face: var(--ink);
+  position: absolute;
+  z-index: 20;
+  width: 4.75rem;
+  height: 4.75rem;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  border-radius: 50%;
+  border: none;
+  background: var(--part-face);
+  color: transparent;
+  cursor: grab;
+  padding: 0;
+  touch-action: none;
+  box-shadow: none;
+  transition: transform 0.04s ease;
+  pointer-events: auto;
+}
+
+.kinetic-part:active {
+  cursor: grabbing;
+}
+
+.kinetic-part.fill-ink {
+  --part-face: var(--ink);
+}
+
+.kinetic-part.fill-yellow {
+  --part-face: var(--yellow);
+}
+
+.kinetic-part.fill-red {
+  --part-face: var(--red);
+}
+
+.kinetic-part.fill-blue {
+  --part-face: var(--blue);
+}
+
+.kinetic-part.kind-gear::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.35) 0deg 2deg,
+    transparent 2deg 11deg
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.kinetic-part.fill-yellow.kind-gear::before,
+.kinetic-part.fill-red.kind-gear::before,
+.kinetic-part.fill-blue.kind-gear::before {
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(0, 0, 0, 0.2) 0deg 2deg,
+    transparent 2deg 11deg
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kinetic-part.kind-gear.is-linked::before {
+    animation: gear-kinetic 18s linear infinite;
+  }
+}
+
+@keyframes gear-kinetic {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.kinetic-part.kind-plate {
+  border-radius: 4px;
+  width: 5.75rem;
+  height: 3.35rem;
+}
+
+.kinetic-part.kind-plate::after {
+  content: '';
+  position: absolute;
+  right: 12%;
+  top: 18%;
+  width: 28%;
+  height: 32%;
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+.kinetic-part.kind-rod {
+  border-radius: 999px;
+  width: 6.35rem;
+  height: 1.45rem;
+}
+
+/*
+ * Skulptur-Teile über Buchstaben: Letter-Buttons liegen im DOM nach den Teilen
+ * und würden sonst die Hero-Fläche überdecken und Drags „stehlen".
+ */
+.kinetic-part.kind-gear,
+.kinetic-part.kind-plate,
+.kinetic-part.kind-rod {
+  z-index: 35;
+}
+
+.kinetic-part.kind-letter {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  width: auto;
+  height: auto;
+  min-width: 8px;
+  min-height: 12px;
+  line-height: 1;
+  text-transform: none;
+  transform-origin: center center;
+  z-index: 12;
+}
+
+.kinetic-part.kind-letter.letter-title {
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.kinetic-part.kind-letter.letter-lead {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.kinetic-part.is-linked {
+  box-shadow: 0 0 0 1px rgba(20, 20, 20, 0.15);
+}
+
+.kinetic-part.is-linked.kind-gear,
+.kinetic-part.is-linked.kind-plate,
+.kinetic-part.is-linked.kind-rod {
+  z-index: 38;
+}
+
+.kinetic-part:active,
+.kinetic-part:focus {
+  z-index: 40;
+}
+
+/* Statement unten; über dem Canvas, Links klickbar */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  margin: 0;
+  padding: 1.5rem clamp(1rem, 4vw, 2.5rem) 2rem;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  background: transparent;
+  border: none;
+  color: var(--text);
+  pointer-events: none;
+}
+
+/* Nur die Legal-Links fangen Klicks (oberhalb der Spielfläche in Z, aber schmal) */
+.footer .footer-links {
+  pointer-events: auto;
+}
+
+.footer .footer-links .link {
+  pointer-events: auto;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  justify-content: flex-end;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(250, 250, 250, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.modal-panel {
+  width: min(520px, 100%);
+  max-height: min(80vh, 680px);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modal-body {
+  padding: 1.1rem 1.2rem 1.35rem;
+  line-height: 1.6;
+  font-size: 1.06rem;
+  color: var(--muted2);
+}
+
+.modal-body p {
+  margin: 0 0 1rem;
+}
+
+.modal-cta {
+  margin-top: 1.25rem;
+}
+
+.legal-placeholder {
+  font-size: 1.02rem;
+  color: var(--muted);
+}
+
+.collab-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.collab-cursor-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ink);
+  opacity: 0.75;
+  transform: translate(-2px, -2px);
+}
+
+.btn {
+  font: inherit;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  transition:
+    transform 0.1s ease,
+    background 0.12s ease;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--muted2);
+  border-color: var(--muted2);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--canvas);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  text-transform: none;
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  padding: 0.4rem 0.55rem;
+}
+
+.btn-ghost:hover {
+  color: var(--ink);
+}
+
+.btn-icon {
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.btn-icon:hover {
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+.link {
+  font: inherit;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.98rem;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.link:hover {
+  color: var(--ink);
+  border-bottom-color: var(--border);
+}
+
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

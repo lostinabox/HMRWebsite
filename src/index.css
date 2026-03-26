@@ -1,0 +1,68 @@
+:root {
+  font-family:
+    'Jost',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  line-height: 1.45;
+  font-weight: 400;
+  color-scheme: light;
+
+  --canvas: #fafafa;
+  --surface: #ffffff;
+  --ink: #141414;
+  --yellow: #f9e01f;
+  --red: #d12c2f;
+  --blue: #3c508a;
+  --text: #141414;
+  --muted: #5c5c5c;
+  --muted2: #3a3a3a;
+  --border: rgba(20, 20, 20, 0.12);
+  --grid-dot: rgba(20, 20, 20, 0.06);
+
+  --shadow-flat: 3px 3px 0 #141414;
+  --shadow-soft: 0 12px 40px rgba(20, 20, 20, 0.06);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Etwas grössere Basis für bessere Lesbarkeit (inkl. ältere Nutzer:innen) */
+  font-size: 112.5%;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--canvas);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* Während Ziehen der kinetischen Teile: keine Textmarkierung / keine fremden Handler stören */
+html.kinetic-dragging,
+html.kinetic-dragging body {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
